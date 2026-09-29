@@ -6,8 +6,13 @@ namespace activate
 {
 	namespace
 	{
-		constexpr const wchar_t* kIMC = L"/Game/Dev/Input/GamePlay/InputMappingContexts/IMC_Game_Default.IMC_Game_Default";
-		constexpr const char*    kActionName = "IA_Game_Default_Activate";   // unverified: every "Activate" action is logged once
+		// The Activate action and the context that maps it, from the game's packaged asset list (2026-09-29):
+		// Content/Dev/Input/GamePlay/InputActions/Actions/IA_Game_Actions_Activate and InputMappingContexts/IMC_Game_Actions.
+		// The first build looked for IA_Game_Default_Activate in IMC_Game_Default - no such action - and never saw a press.
+		// IMC_Game_Default is still searched after IMC_Game_Actions, in case a rebind moves it.
+		constexpr const wchar_t* kIMCs[] = { L"/Game/Dev/Input/GamePlay/InputMappingContexts/IMC_Game_Actions.IMC_Game_Actions",
+			L"/Game/Dev/Input/GamePlay/InputMappingContexts/IMC_Game_Default.IMC_Game_Default" };
+		constexpr const char*    kActionName = "IA_Game_Actions_Activate";
 
 		struct RawArray
 		{
@@ -34,23 +39,26 @@ namespace activate
 				return;
 			}
 			last = now;
-			static UE::UObject* imc = nullptr;
-			if (!imc) {
-				imc = UE::StaticFindObject<UE::UObject>(nullptr, nullptr, kIMC);
-				if (!imc) {
-					return;   // not loaded yet (rule 17): asked again in 2 s
+			static std::array<UE::UObject*, std::size(kIMCs)> imcs{};
+			bool                                              any = false;
+			for (std::size_t i = 0; i < std::size(kIMCs); ++i) {
+				if (!imcs[i]) {
+					imcs[i] = UE::StaticFindObject<UE::UObject>(nullptr, nullptr, kIMCs[i]);
 				}
+				any |= imcs[i] != nullptr;
+			}
+			if (!any) {
+				return;   // not loaded yet (rule 17): asked again in 2 s
 			}
 			auto* st = UE::StaticFindObject<UE::UStruct>(nullptr, nullptr, L"/Script/EnhancedInput.EnhancedActionKeyMapping");
 			const std::int32_t size = st ? st->propertiesSize : 0;
 			const std::int32_t offAction = st ? ue::Offset(st, "Action") : -1;
 			const std::int32_t offKey = st ? ue::Offset(st, "Key") : -1;
-			auto* arr = ue::At<RawArray>(imc, ue::Offset(imc->GetClass(), "Mappings"));
-			if (!arr || size <= 0 || offAction < 0 || offKey < 0) {
+			if (size <= 0 || offAction < 0 || offKey < 0) {
 				static bool warned = false;
 				if (!warned) {
 					warned = true;
-					logger::warn("activate: IMC_Game_Default's mappings cannot be read - no fallback activation");
+					logger::warn("activate: the input mapping layout cannot be read - no fallback activation");
 				}
 				return;
 			}
@@ -58,7 +66,9 @@ namespace activate
 			std::vector<UE::FName>   keys;
 			std::vector<std::string> names;
 			std::string              chosen;
-			for (std::int32_t i = 0; i < arr->num; ++i) {
+			for (auto* imc : imcs) {
+			auto* arr = imc ? ue::At<RawArray>(imc, ue::Offset(imc->GetClass(), "Mappings")) : nullptr;
+			for (std::int32_t i = 0; arr && i < arr->num; ++i) {
 				std::uint8_t* e = arr->data + static_cast<std::ptrdiff_t>(i) * size;
 				auto*         act = *reinterpret_cast<UE::UObject**>(e + offAction);
 				if (!act) {
@@ -66,7 +76,7 @@ namespace activate
 				}
 				const std::string an = ue::NameOf(act);
 				if (!listed && an.find("ctivate") != std::string::npos) {
-					logger::info("activate: IMC_Game_Default maps {} to {}", an, ue::Utf8(reinterpret_cast<const UE::FName*>(e + offKey)->ToString()));
+					logger::info("activate: {} maps {} to {}", ue::NameOf(imc), an, ue::Utf8(reinterpret_cast<const UE::FName*>(e + offKey)->ToString()));
 				}
 				if (an != kActionName) {
 					continue;
@@ -79,6 +89,7 @@ namespace activate
 					names.push_back(kn);
 				}
 			}
+			}
 			listed = true;
 			static std::string lastLogged;
 			std::string joined;
@@ -86,7 +97,7 @@ namespace activate
 			if (joined != lastLogged) {
 				lastLogged = joined;
 				if (chosen.empty()) {
-					logger::warn("activate: no {} in IMC_Game_Default - no fallback activation (the actions with 'Activate' in their name are listed above)",
+					logger::warn("activate: no {} in IMC_Game_Actions or IMC_Game_Default - no fallback activation (the actions with 'Activate' in their name are listed above)",
 						kActionName);
 				} else {
 					logger::info("activate: {} is on {}", chosen, joined.empty() ? "no key" : joined);

@@ -25,6 +25,31 @@ namespace selection
 		std::atomic<std::uint32_t> g_cellsScanned{ 0 };
 		int                    g_writeHeld = -1;   // the last write check: -1 not yet, 0 the game replaced it, 1 it was kept
 
+		// an Activate press on this mod's choice, waiting to see whether the game acted on it (by form ID: the reference
+		// may be freed once taken, so it is looked up again, never dereferenced from here)
+		struct PendingPress
+		{
+			RE::TESFormID id = 0;
+			ULONGLONG     at = 0;
+		} g_press;
+
+		constexpr ULONGLONG kPressWaitMs = 200;
+
+		// the reference by its form ID when it is still in the world (nullptr once taken, deleted, disabled or cell-less)
+		RE::TESObjectREFR* StillThere(RE::TESFormID a_id)
+		{
+			auto* form = RE::TESForm::LookupByID(a_id);
+			if (!form || (form->GetFormType() != RE::FormType::Reference && form->GetFormType() != RE::FormType::ActorCharacter &&
+							 form->GetFormType() != RE::FormType::ActorCreature)) {
+				return nullptr;
+			}
+			auto* ref = static_cast<RE::TESObjectREFR*>(form);
+			if (ref->IsDeleted() || (ref->GetFormFlags() & RE::TESForm::RecordFlags::kDisabled) || !ref->parentCell) {
+				return nullptr;
+			}
+			return ref;
+		}
+
 		constexpr float kCellSize = 4096.0f;
 
 		std::string Name(RE::TESObjectREFR* a_ref)
@@ -260,6 +285,21 @@ namespace selection
 			return;
 		}
 
+		// a press waiting for its outcome: a menu (container, dialogue, loading) or the item leaving the world means the
+		// game acted on it; after kPressWaitMs with neither, this mod activates it
+		if (g_press.id) {
+			if (im->menuMode != 1) {
+				logger::info("activate: a menu opened - the game handled the press on [{:08X}]", g_press.id);
+				g_press = {};
+			} else if (auto* r = StillThere(g_press.id); !r) {
+				logger::info("activate: [{:08X}] left the world - the game handled the press", g_press.id);
+				g_press = {};
+			} else if (GetTickCount64() - g_press.at >= kPressWaitMs) {
+				g_press = {};
+				activate::Run(r, player);
+			}
+		}
+
 		// last frame's write: did the game keep it? (logged once per change of the answer)
 		if (g_written) {
 			int held = 1;
@@ -372,10 +412,18 @@ namespace selection
 				logger::info("activate: pressed - nothing chosen");
 			} else if (s.applyTo == settings::kObserve) {
 				logger::info("activate: pressed - observing only (iApplyTo=0), {} is not activated", Name(choice));
-			} else if (g_writeHeld == 1) {
-				logger::info("activate: pressed - {} is left to the game (the write to {} was kept)", Name(choice), settings::ApplyToName(g_writtenTo));
 			} else {
-				activate::Run(choice, player);
+				const auto kind = choice->data.objectReference ? choice->data.objectReference->GetFormType() : RE::FormType::None;
+				const bool noTrace = kind == RE::FormType::Door || kind == RE::FormType::Activator;   // nothing to see when they work
+				if (noTrace && g_writeHeld == 1) {
+					logger::info("activate: pressed - {} is left to the game (the write to {} was kept; a door or activator shows no outcome to wait for)",
+						Name(choice), settings::ApplyToName(g_writtenTo));
+				} else if (noTrace) {
+					activate::Run(choice, player);
+				} else {
+					g_press = { choice->GetFormID(), GetTickCount64() };
+					logger::info("activate: pressed on {} - waiting {} ms for the game to act on it", Name(choice), kPressWaitMs);
+				}
 			}
 		}
 

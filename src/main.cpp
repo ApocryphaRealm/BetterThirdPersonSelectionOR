@@ -50,8 +50,29 @@ namespace
 	}
 }
 
+namespace
+{
+	// The previous launch's log, kept as BetterThirdPersonSelection.prev.log before OBSE::Init truncates it: a crash or a
+	// quick relaunch overwrote the log of the round that mattered twice on 2026-09-29.
+	void KeepPreviousLog()
+	{
+		PWSTR docs = nullptr;
+		if (FAILED(::SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &docs)) || !docs) {
+			return;
+		}
+		const std::filesystem::path dir = std::filesystem::path(docs) / L"My Games" / L"Oblivion Remastered" / L"OBSE" / L"Logs";
+		::CoTaskMemFree(docs);
+		std::error_code ec;
+		if (std::filesystem::exists(dir / L"BetterThirdPersonSelection.log", ec)) {
+			std::filesystem::copy_file(dir / L"BetterThirdPersonSelection.log", dir / L"BetterThirdPersonSelection.prev.log",
+				std::filesystem::copy_options::overwrite_existing, ec);
+		}
+	}
+}
+
 OBSE_PLUGIN_LOAD(const OBSE::LoadInterface* a_obse)
 {
+	KeepPreviousLog();
 	OBSE::Init(a_obse);
 	settings::Load();
 	const auto v = settings::Snapshot();

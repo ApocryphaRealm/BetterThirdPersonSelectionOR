@@ -21,6 +21,17 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Fixed (after round 3 - the owner: "btps still does nothing")
+- the fallback never saw an Activate press: it looked for IA_Game_Default_Activate in IMC_Game_Default, which does not
+  exist. The game's packaged asset list has the action as Content/Dev/Input/GamePlay/InputActions/Actions/
+  IA_Game_Actions_Activate, mapped in IMC_Game_Actions; that context is searched first, IMC_Game_Default after it.
+- the fallback decides by outcome instead of by the write check: after a press on the choice it waits 200 ms, and if
+  the game neither took the item (the reference, looked up again by form ID, is gone, deleted, disabled or out of its
+  cell) nor opened a menu (container, dialogue, loading), the mod activates it. A door or an activator leaves no trace to
+  wait for, so for those a kept write is still left to the game (a door toggled twice would close again).
+- the previous launch's log is kept as BetterThirdPersonSelection.prev.log: round 3's log was overwritten by a relaunch
+  that crashed in UE4SS's Lua loader (Ultimate Combat Redux starting, 11:00:47 - not this mod).
+
 ### Added (before round 3)
 - the owner, 2026-09-29: "figure out what went wrong with BTPS because it didn't do anything". Round 2 ran the
   observe-only build (its log: "apply to observe", no write lines) - it never handed anything to the game. The risk left
