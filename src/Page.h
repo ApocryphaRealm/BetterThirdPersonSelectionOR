@@ -6,6 +6,6 @@
 
 namespace page
 {
-	inline constexpr const char* kModName = "Better Selection";
+	inline constexpr const char* kModName = "Better Third-Person Selection";
 	void Register();
 }

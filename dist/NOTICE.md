@@ -1,4 +1,4 @@
-# Better Selection - copyright and licence
+# Better Third-Person Selection - copyright and licence
 
 Copyright (C) 2026 ApocryphaRealm
 

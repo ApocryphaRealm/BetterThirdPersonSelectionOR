@@ -81,7 +81,7 @@ namespace tool
 		g_tb = get ? static_cast<TestBenchAPI::ITestBenchInterface001*>(get(1)) : nullptr;
 		if (!g_tb) return false;
 		g_tb->RegisterTool("selection.state",
-			R"({"description":"Better Selection: op state (default) - settings, this mod's pick and the game's, the best candidates, the game's pick fields (pickRef/reticleRef/crosshairRef/activateRef/fuzzyActivatePick), the camera and its calibration; op set {key, value} - enabled, thirdPerson, firstPerson, range, maxAngle, applyTo 0-5, logTargets; op reset","inputSchema":{"type":"object","properties":{"op":{"type":"string"},"key":{"type":"string"},"value":{}}}})",
+			R"({"description":"Better Third-Person Selection: op state (default) - settings, this mod's pick and the game's, the best candidates, the game's pick fields (pickRef/reticleRef/crosshairRef/activateRef/fuzzyActivatePick), the camera and its calibration; op set {key, value} - enabled, thirdPerson, firstPerson, range, maxAngle, applyTo 0-5, logTargets; op reset","inputSchema":{"type":"object","properties":{"op":{"type":"string"},"key":{"type":"string"},"value":{}}}})",
 			&Tool, nullptr);
 		logger::info("TestBench tool registered: selection.state");
 		return true;

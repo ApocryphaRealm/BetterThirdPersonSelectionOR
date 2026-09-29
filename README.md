@@ -1,4 +1,4 @@
-# Better Selection (working name)
+# Better Third-Person Selection
 
 An OBSE64 plugin for The Elder Scrolls IV: Oblivion Remastered: use what you are roughly looking at. The game only lets
 you activate what the crosshair is exactly on; this widens the pick to everything within a reach of your character and
@@ -23,7 +23,7 @@ reads (`4. plans\better-selection-oblivion\PLAN.md`, "Probe first").
   log names the result).
 
 Settings: the page on the Apocrypha Menu Framework (switches for on, third person, first person; sliders for reach and
-angle) and `BetterSelection.ini`. `[Test] iApplyTo` picks where the choice is written while testing: 0 nowhere, 1
+angle) and `BetterThirdPersonSelection.ini`. `[Test] iApplyTo` picks where the choice is written while testing: 0 nowhere, 1
 pickRef, 2 reticleRef, 3 crosshairRef, 4 activateRef, 5 all four.
 
 ## TestBench
@@ -35,7 +35,7 @@ firstPerson, range, maxAngle, applyTo, logTargets), op `reset`.
 ## Building
 
 * [xmake](https://xmake.io) 3.0+, MSVC with C++23, and the submodule: `git clone --recurse-submodules`.
-* `xmake f -p windows -a x64 -m releasedbg --toolchain=msvc`, then `xmake build BetterSelection`. Dear ImGui 1.90.8
+* `xmake f -p windows -a x64 -m releasedbg --toolchain=msvc`, then `xmake build BetterThirdPersonSelection`. Dear ImGui 1.90.8
   docking is vendored under `extern/imgui` - the framework's own version, which `AMF::UseFrameworkImGui()` checks.
 * The plugin and `dist/OblivionRemastered/Binaries/Win64/OBSE/Plugins/*` go to `OblivionRemastered\Binaries\Win64\OBSE\Plugins\`
   (Mod Organizer 2: the Root Builder layout). The translations ship in the framework's translation folder.

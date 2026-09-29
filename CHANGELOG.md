@@ -1,4 +1,4 @@
-# BetterSelectionOR - changelog
+# BetterThirdPersonSelectionOR - changelog
 
 Written as changes happen, not reconstructed afterwards (rule 61). A version number is issued by the version gate
 only once a build is seen working in game (rule 48); until then the work sits under Unreleased.
@@ -17,7 +17,7 @@ only once a build is seen working in game (rule 48); until then the work sits un
   telekinesisRef / fuzzyActivatePick / pickDistance is logged ([Test] bLogTargets=1), beside this mod's own choice.
 - [Test] iApplyTo: 0 (the default) writes nothing; 1-5 write the choice into the named field(s) where the game picked
   nothing, and the log says the next frame whether the game kept the write.
-- the Apocrypha Menu Framework page "Better Selection": switches (on, third person, first person), Reach and Angle
+- the Apocrypha Menu Framework page "Better Third-Person Selection": switches (on, third person, first person), Reach and Angle
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 

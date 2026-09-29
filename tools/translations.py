@@ -1,5 +1,5 @@
 """Writes the eleven translation files (rule 66): UTF-16LE with a BOM, "$SEL_<Key><TAB>text" per line, into
-dist/.../OBSE/Plugins/ApocryphaMenuFramework/Translations/BetterSelection_<language>.txt. Placeholders (%s) stay as they are.
+dist/.../OBSE/Plugins/ApocryphaMenuFramework/Translations/BetterThirdPersonSelection_<language>.txt. Placeholders (%s) stay as they are.
     python tools/translations.py"""
 import os
 
@@ -108,6 +108,6 @@ for lang, texts in T.items():
         assert t.count("%s") == T["english"][KEYS.index(k)].count("%s"), (lang, k)
         assert "%" not in t.replace("%s", ""), (lang, k)
     body = "\r\n".join(f"${k}\t{t}" for k, t in zip(KEYS, texts)) + "\r\n"
-    with open(os.path.join(OUT, f"BetterSelection_{lang}.txt"), "wb") as f:
+    with open(os.path.join(OUT, f"BetterThirdPersonSelection_{lang}.txt"), "wb") as f:
         f.write(b"\xff\xfe" + body.encode("utf-16-le"))
 print(f"{len(T)} languages x {len(KEYS)} keys written to {OUT}")

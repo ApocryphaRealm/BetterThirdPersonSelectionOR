@@ -1,6 +1,6 @@
 #pragma once
 
-// BetterSelection.ini beside the plugin. The compiled defaults are the shipped INI's values (rule 16); Save() rewrites
+// BetterThirdPersonSelection.ini beside the plugin. The compiled defaults are the shipped INI's values (rule 16); Save() rewrites
 // only this plugin's keys in place with ordinary file I/O (never WritePrivateProfileString), so comments and unknown
 // lines survive and a change on the page persists. The page draws on AMF's render thread and the selection runs on
 // the game thread, so the values are read and written only through Snapshot() / Update() under one lock.

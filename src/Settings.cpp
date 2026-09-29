@@ -97,7 +97,7 @@ namespace settings
 	}
 
 	std::filesystem::path PluginFolder() { return ModuleFolder(); }
-	std::filesystem::path IniPath() { return ModuleFolder() / L"BetterSelection.ini"; }
+	std::filesystem::path IniPath() { return ModuleFolder() / L"BetterThirdPersonSelection.ini"; }
 
 	void Load()
 	{

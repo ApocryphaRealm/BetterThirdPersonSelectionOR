@@ -1,4 +1,4 @@
--- Better Selection for The Elder Scrolls IV: Oblivion Remastered (OBSE64 plugin): the pick widened to a range and an
+-- Better Third-Person Selection for The Elder Scrolls IV: Oblivion Remastered (OBSE64 plugin): the pick widened to a range and an
 -- angle around the camera's aim, with a settings page on the Apocrypha Menu Framework (plan: 4. plans/better-selection-oblivion/PLAN.md).
 -- rule 45: no build-machine paths in any compiled object - set BEFORE includes() so CommonLibOB64's own library
 -- target gets it too. /d1trimfile is wrapped in a TABLE so xmake passes it as one argument (logic library 7598); no
@@ -8,7 +8,7 @@ add_shflags("/PDBALTPATH:%_PDB%", {force = true})
 
 includes("lib/commonlibob64")
 
-set_project("BetterSelection")
+set_project("BetterThirdPersonSelection")
 set_version("1.0.0")
 set_license("GPL-3.0-or-later")
 set_languages("c++23")
@@ -28,11 +28,11 @@ target("imgui")
               "extern/imgui/imgui_widgets.cpp")
     add_includedirs("extern/imgui", {public = true})
 
-target("BetterSelection")
+target("BetterThirdPersonSelection")
     add_rules("commonlibob64.plugin", {
-        name = "BetterSelection",
+        name = "BetterThirdPersonSelection",
         author = "ApocryphaRealm",
-        description = "Better Selection - use what you are roughly looking at: the pick widened to a range and an angle (Oblivion Remastered)"
+        description = "Better Third-Person Selection - use what you are roughly looking at: the pick widened to a range and an angle (Oblivion Remastered)"
     })
     add_deps("imgui")
     add_packages("nlohmann_json")

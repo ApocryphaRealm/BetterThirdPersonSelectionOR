@@ -2,7 +2,7 @@
 
 // Every visible string goes through TR() with a SEL_-prefixed key and its English (rule 66). The eleven files
 // are UTF-16LE with a BOM, "$SEL_<Key><TAB>text" per line, and ship in the FRAMEWORK's translation folder -
-// OBSE\Plugins\ApocryphaMenuFramework\Translations\BetterSelection_<language>.txt - because AMF builds its font atlas from
+// OBSE\Plugins\ApocryphaMenuFramework\Translations\BetterThirdPersonSelection_<language>.txt - because AMF builds its font atlas from
 // every <Mod>_<language>.txt there, so a Japanese or Chinese page gets its glyphs. The language is AMF::Language(),
 // re-read each frame the page draws. (Taken from Ultimate Combat Redux's plugin.)
 

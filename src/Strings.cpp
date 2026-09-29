@@ -60,7 +60,7 @@ namespace strings
 		void LoadLocked(const std::string& a_language)
 		{
 			std::unordered_map<std::string, std::string> texts;
-			const auto file = [](const std::string& l) { return Dir() / (L"BetterSelection_" + std::wstring(l.begin(), l.end()) + L".txt"); };
+			const auto file = [](const std::string& l) { return Dir() / (L"BetterThirdPersonSelection_" + std::wstring(l.begin(), l.end()) + L".txt"); };
 			const int own = ReadInto(file(a_language), texts, true);
 			const int eng = a_language == "english" ? 0 : ReadInto(file("english"), texts, false);
 			if (own < 0) {

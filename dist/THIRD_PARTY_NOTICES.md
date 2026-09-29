@@ -1,7 +1,7 @@
 # Third-party components and their notices
 
-Better Selection as a whole is GPL-3.0-or-later (`LICENSE`, `NOTICE.md`). Every component below is linked into
-BetterSelection.dll; each is under a GPL-compatible licence, and its notice is reproduced as that licence requires. Versions
+Better Third-Person Selection as a whole is GPL-3.0-or-later (`LICENSE`, `NOTICE.md`). Every component below is linked into
+BetterThirdPersonSelection.dll; each is under a GPL-compatible licence, and its notice is reproduced as that licence requires. Versions
 are the ones this build pins.
 
 ## CommonLibOB64 and commonlib-shared - GPL-3.0

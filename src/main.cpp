@@ -1,4 +1,4 @@
-// Better Selection for Oblivion Remastered - use what you are roughly looking at: the pick widened to a range around
+// Better Third-Person Selection for Oblivion Remastered - use what you are roughly looking at: the pick widened to a range around
 // the character and an angle around the camera's aim, handed to the game's own activation. A clean rebuild: Skyrim's
 // Better Third Person Selection (Shrimperator) is the reference for what it does, not for how.
 // Plan: 4. plans\better-selection-oblivion\PLAN.md.
@@ -58,7 +58,7 @@ OBSE_PLUGIN_LOAD(const OBSE::LoadInterface* a_obse)
 	const auto level = static_cast<spdlog::level::level_enum>(std::clamp(v.logLevel, 0, 6));
 	logger::set_level(level, level);
 	// rule 14: the log names its level and how to get everything
-	logger::info("Better Selection {} loaded (Oblivion Remastered) - log level {}; set uLogLevel=0 in BetterSelection.ini to capture everything",
+	logger::info("Better Third-Person Selection {} loaded (Oblivion Remastered) - log level {}; set uLogLevel=0 in BetterThirdPersonSelection.ini to capture everything",
 		SEL_VERSION, v.logLevel);
 	if (auto* messaging = OBSE::GetMessagingInterface(); !messaging || !messaging->RegisterListener(&OnMessage)) {
 		logger::error("OBSE messaging unavailable - no frame tick, nothing is selected");
