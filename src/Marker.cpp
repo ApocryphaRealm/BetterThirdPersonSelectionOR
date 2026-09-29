@@ -54,6 +54,32 @@ namespace marker
 			return true;
 		}
 
+		// white with a soft dark shadow (the prefab's style is black). The prefab is a CommonUI text block: its text style
+		// is applied when its Slate widget is constructed (AddToViewport) and overwrites a colour set before that - the
+		// first build set it before and stayed black - so this runs after AddToViewport and again with every new text.
+		void ApplyColour(UE::UObject* a_label)
+		{
+			struct SlateColor
+			{
+				float        rgba[4];
+				std::uint8_t rule;   // ESlateColorStylingMode: 0 = the colour given
+				std::uint8_t pad[7];
+			} white{ { 1.0f, 1.0f, 1.0f, 1.0f }, 0, {} };
+			// the prefab's own SetColor (what Tween Menu colours these labels with, proven in game) and the text block's
+			const bool bp = CallFirst(a_label, L"SetColor", &white, sizeof(white));
+			const bool native = CallFirst(a_label, L"SetColorAndOpacity", &white, sizeof(white));
+			static bool logged = false;
+			if (!logged) {
+				logged = true;
+				logger::info("marker: colour set through {}{}", bp ? "the prefab's SetColor" : "(no SetColor on the prefab)",
+					native ? " and SetColorAndOpacity" : " (no SetColorAndOpacity)");
+			}
+			const float shadow[4] = { 0.0f, 0.0f, 0.0f, 0.85f };
+			CallFirst(a_label, L"SetShadowColorAndOpacity", shadow, sizeof(shadow));
+			const double offset[2] = { 1.5, 1.5 };
+			CallFirst(a_label, L"SetShadowOffset", offset, sizeof(offset));
+		}
+
 		UE::UObject* Create(const wchar_t* a_classPath)
 		{
 			static auto* lib = ue::Class(L"/Script/UMG.WidgetBlueprintLibrary");
@@ -123,18 +149,8 @@ namespace marker
 			ue::Call vp(root, L"AddToViewport");
 			vp.Set<std::int32_t>("ZOrder", 40);
 			vp.Run();
-			// white with a soft dark shadow (the prefab's own colour is black), a little smaller than the prefab
-			struct SlateColor
-			{
-				float        rgba[4];
-				std::uint8_t rule;   // ESlateColorStylingMode: 0 = the colour given
-				std::uint8_t pad[7];
-			} white{ { 1.0f, 1.0f, 1.0f, 1.0f }, 0, {} };
-			CallFirst(label, L"SetColorAndOpacity", &white, sizeof(white));
-			const float shadow[4] = { 0.0f, 0.0f, 0.0f, 0.85f };
-			CallFirst(label, L"SetShadowColorAndOpacity", shadow, sizeof(shadow));
-			const double offset[2] = { 1.5, 1.5 };
-			CallFirst(label, L"SetShadowOffset", offset, sizeof(offset));
+			ApplyColour(label);   // after the Slate widget exists: the style applied at construction is already in
+			// a little smaller than the prefab (the render scale is not part of the text style, so it holds from here)
 			const double scale[2] = { kScale, kScale };
 			CallFirst(label, L"SetRenderScale", scale, sizeof(scale));
 			g_root.Set(root);
@@ -191,6 +207,7 @@ namespace marker
 			label->ProcessEvent(fn, params.data());
 			text->~FText();
 			g_text = a_text;
+			ApplyColour(label);   // with every new text, so a style re-applied by the prefab since cannot keep it black
 		}
 
 		// where the marker stands: above a person or creature's head, at the top of a container or door, just above an item
