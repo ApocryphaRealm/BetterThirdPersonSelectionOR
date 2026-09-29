@@ -17,7 +17,20 @@ namespace ue
 	std::int32_t Offset(UE::UStruct* a_struct, std::string_view a_name);
 
 	bool SelfCheck();   // true once the Offset_Internal layout is proven
+
+	// For an object read THIS frame from a live owner: reads a_o's own index, so never for a pointer kept from an
+	// earlier frame (a freed object's index is garbage - Improved Wheel Menu crashed in exactly that read, 09:15).
 	bool IsLive(UE::UObject* a_o);
+
+	// A pointer kept across frames with the object-array slot it was found in. Get() asks the SLOT whether it still
+	// holds that object and never reads the object itself.
+	struct Handle
+	{
+		UE::UObject* ptr = nullptr;
+		std::int32_t index = -1;
+		void         Set(UE::UObject* a_live);   // a_live must be live now (just found)
+		UE::UObject* Get() const;                // nullptr once the slot holds anything else
+	};
 
 	// the first live object whose class is a_base or derives from it (not a class default object) - scans the whole
 	// object array, so the caller caches the answer

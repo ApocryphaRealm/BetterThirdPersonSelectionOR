@@ -87,6 +87,22 @@ namespace ue
 		return item && reinterpret_cast<UE::UObject*>(item->object) == a_o;
 	}
 
+	void Handle::Set(UE::UObject* a_live)
+	{
+		ptr = a_live;
+		index = a_live ? a_live->internalIndex : -1;
+	}
+
+	UE::UObject* Handle::Get() const
+	{
+		auto* arr = UE::FUObjectArray::GetSingleton();
+		if (!ptr || !arr || index < 0 || index >= arr->GetObjectArrayNum()) {
+			return nullptr;
+		}
+		auto* item = arr->IndexToObject(index);
+		return item && reinterpret_cast<UE::UObject*>(item->object) == ptr ? ptr : nullptr;
+	}
+
 	UE::UObject* FirstOf(UE::UClass* a_base)
 	{
 		auto* arr = UE::FUObjectArray::GetSingleton();

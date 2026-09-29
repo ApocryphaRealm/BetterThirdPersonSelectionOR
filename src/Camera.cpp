@@ -72,24 +72,24 @@ namespace camera
 
 		UE::UObject* PlayerController()
 		{
-			static UE::UObject* cached = nullptr;
-			static ULONGLONG    lastScan = 0;
-			if (cached && ue::IsLive(cached)) {
-				return cached;
+			static ue::Handle cached;   // kept across frames: checked by its slot, never by reading it
+			static ULONGLONG  lastScan = 0;
+			if (auto* pc = cached.Get()) {
+				return pc;
 			}
-			cached = nullptr;
 			const ULONGLONG now = GetTickCount64();
 			if (now - lastScan < 2000) {
 				return nullptr;   // the object array scan is not cheap: at most every 2 s until found (rule 17)
 			}
 			lastScan = now;
-			cached = ue::FirstOf(ue::Class(L"/Script/Engine.PlayerController"));
+			auto* found = ue::FirstOf(ue::Class(L"/Script/Engine.PlayerController"));
+			cached.Set(found);
 			static bool logged = false;
-			if (cached && !logged) {
+			if (found && !logged) {
 				logged = true;
-				logger::info("camera: player controller found ({})", ue::NameOf(cached));
+				logger::info("camera: player controller found ({})", ue::NameOf(found));
 			}
-			return cached;
+			return found;
 		}
 
 		// an object held by a property of a_owner, by the property's name (the offset is learned once per class)
@@ -180,7 +180,7 @@ namespace camera
 			static std::string lastWhy;
 			if (lastWhy != a_why) {
 				lastWhy = a_why;
-				logger::debug("camera: not read - {}", a_why);
+				logger::info("camera: not read - {}", a_why);   // once per change of the reason
 			}
 			r.problem = a_why;
 			std::scoped_lock l(g_lock);

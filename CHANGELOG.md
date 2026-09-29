@@ -21,7 +21,20 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Fixed (after the first round, 09:12)
+- the frame stopped at "a menu is open" in gameplay: Oblivion Remastered's InterfaceManager::menuMode is 1 while
+  playing, and the tick tested it for truth - so the camera was never read (the round's log had the pick lines and
+  nothing after). Now menuMode != 1 is a menu, as Tween Menu and Improved Wheel Menu read it.
+- the cached player controller is held with its object-array slot and checked there, never by reading the pointer (the
+  same freed-memory read that crashed Improved Wheel Menu at 09:15).
+- each stop reason ("state: ...", "camera: not read - ...") is logged once per change at info, so a round at the shipped
+  log level shows which stage it reached.
+
 ### Known
-- not run in game yet. Open questions for the test: whether the calibration settles (the log's "camera: calibrated"
+- first round (09:12): loaded, page and tool registered; the five pick fields were empty on every change logged (pick
+  distance 128 / 150 / 80) - the owner was mostly in the inventory, so it is not yet known whether the game fills them
+  at all in Oblivion Remastered. If they stay empty while the game shows a prompt, the prompt is Unreal-side and the
+  write target has to be found there instead.
+- not run in game past that yet. Open questions for the test: whether the calibration settles (the log's "camera: calibrated"
   line); whether the exterior cell look-up finds the neighbouring cells (debug log); which field the prompt and the
   activation read, and whether a write from the frame tick survives to the activation.

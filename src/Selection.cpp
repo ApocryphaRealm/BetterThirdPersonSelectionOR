@@ -224,6 +224,12 @@ namespace selection
 
 		void Publish(Status a_status, const std::vector<Candidate>& a_top)
 		{
+			// where the frame stopped, once per change - an info-level log then shows which stage a round reached
+			static int lastReason = -1;
+			if (static_cast<int>(a_status.reason) != lastReason) {
+				lastReason = static_cast<int>(a_status.reason);
+				logger::info("state: {}", a_status.reason == Reason::kActive ? "selecting" : a_status.why);
+			}
 			std::vector<json> top;
 			for (std::size_t i = 0; i < a_top.size() && i < 5; ++i) {
 				const auto& c = a_top[i];
@@ -288,7 +294,7 @@ namespace selection
 			Publish(st, {});
 			return;
 		}
-		if (im->menuMode) {
+		if (im->menuMode != 1) {   // Oblivion Remastered: 1 is gameplay, anything else a menu (as Tween Menu and Improved Wheel Menu read it)
 			st.reason = Reason::kMenu;
 			st.why = "a menu is open";
 			Publish(st, {});
