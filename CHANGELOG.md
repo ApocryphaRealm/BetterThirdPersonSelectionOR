@@ -3,7 +3,13 @@
 Written as changes happen, not reconstructed afterwards (rule 61). A version number is issued by the version gate
 only once a build is seen working in game (rule 48); until then the work sits under Unreleased.
 
-## Unreleased - 2026-09-29 - untested
+## 1.0.0 - 2026-09-29 - working
+
+The first release (the owner: "lets default btps 35 degrees angle and 300 reach and finalize it"): defaults Reach 300,
+Angle 35 (the page allows 50-400 and 5-75); the per-change target log off by default, the write-check summary at debug.
+Everything below is how it got here, in the order it happened.
+
+## Before 1.0.0 - 2026-09-29 - test builds
 
 ### Added
 - the owner, 2026-09-29: "All that BTPS really does is expand the area that the crosshair affects when selecting items.

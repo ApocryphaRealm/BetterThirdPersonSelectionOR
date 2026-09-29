@@ -6,8 +6,10 @@ within an angle of where the camera looks, and hands the best of them to the gam
 activate button, everything after that is the game's. A clean rebuild: Skyrim's Better Third Person Selection
 (Shrimperator) is the reference for what it does, not for how.
 
-**Test build - no version issued yet (rule 48).** The choice is written into InterfaceManager's `activateRef`, the field
-the game's own prompt target lives in (read in game 2026-09-29), whenever the game's own pick is empty.
+**Version 1.0.0.** The choice is written into InterfaceManager's `activateRef`, the field the game's own prompt target
+lives in (read in game 2026-09-29), whenever the game's own pick is empty; the game's own activation then uses it. The
+chosen reference's name is drawn where it stands (the game's own HUD text, placed by UMG's projection). Nothing else in
+the game is changed from this plugin's thread (the engine traps reference changes off its simulation thread).
 
 ## What it does
 
