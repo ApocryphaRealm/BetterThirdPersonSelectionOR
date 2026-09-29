@@ -21,6 +21,14 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Changed (after round 2, 09:47-09:50)
+- the choice is now written into InterfaceManager::activateRef by default ([Test] iApplyTo=4): round 2 showed the game's
+  own prompt target there alone - it held the Iron Arrow whenever the prompt showed, while pickRef, reticleRef,
+  crosshairRef and telekinesisRef stayed empty. The calibration settled on the fifth step (UE x = +obl.x, UE y = -obl.y,
+  1.4288 Unreal units per Oblivion unit, agreement 1.000), and the selection found the arrow at up to 58 degrees and 199
+  units. Round 2 wrote nothing (the observe-only build), which is why the owner saw no change in game.
+- the view switch is debounced (150 ms): is3rdPerson reads false for one frame every few seconds in third person.
+
 ### Fixed (after the first round, 09:12)
 - the frame stopped at "a menu is open" in gameplay: Oblivion Remastered's InterfaceManager::menuMode is 1 while
   playing, and the tick tested it for truth - so the camera was never read (the round's log had the pick lines and

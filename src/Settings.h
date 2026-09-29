@@ -7,8 +7,9 @@
 
 namespace settings
 {
-	// Where the chosen reference is written. The in-game test decides which field the game's prompt and activation
-	// read (plan: 4. plans\better-selection-oblivion\PLAN.md, "Probe first"); until then the mod only observes.
+	// Where the chosen reference is written. Round 2 (2026-09-29 09:49) showed the game's prompt target in activateRef
+	// alone - it held the Iron Arrow whenever the prompt showed, the other four fields stayed empty - so that is the
+	// default; the other values stay for testing.
 	enum ApplyTo : int
 	{
 		kObserve = 0,        // write nothing: log what the game picked and what this mod would pick
@@ -27,7 +28,7 @@ namespace settings
 		bool  firstPerson = false;  // [General] bFirstPerson (first person keeps the game's own precise pick)
 		float range = 200.0f;       // [General] fRange - game units from the character
 		float maxAngle = 60.0f;     // [General] fMaxAngle - degrees either side of where the camera looks
-		int   applyTo = kObserve;   // [Test] iApplyTo
+		int   applyTo = kActivateRef;   // [Test] iApplyTo
 		bool  logTargets = true;    // [Test] bLogTargets - one log line whenever the game's or this mod's target changes
 		int   logLevel = 2;         // [Log] uLogLevel (rule 14: shipped at info)
 	};

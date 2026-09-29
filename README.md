@@ -6,9 +6,8 @@ within an angle of where the camera looks, and hands the best of them to the gam
 activate button, everything after that is the game's. A clean rebuild: Skyrim's Better Third Person Selection
 (Shrimperator) is the reference for what it does, not for how.
 
-**Test build - no version issued yet (rule 48).** The first build observes only: it logs what the game picks and what
-this mod would pick, and writes nothing into the game until the in-game test names the field the game's activation
-reads (`4. plans\better-selection-oblivion\PLAN.md`, "Probe first").
+**Test build - no version issued yet (rule 48).** The choice is written into InterfaceManager's `activateRef`, the field
+the game's own prompt target lives in (read in game 2026-09-29), whenever the game's own pick is empty.
 
 ## What it does
 

@@ -301,7 +301,22 @@ namespace selection
 			return;
 		}
 		const auto view = camera::Read(player);   // read in either view, so the calibration keeps learning
-		const bool third = player->is3rdPerson;
+		// the view, debounced: is3rdPerson reads false for a single frame every few seconds in third person (round 2,
+		// 09:49 - "off in first person" for ~13 ms), which would drop the write for that frame; a switch counts once it
+		// has held for 150 ms
+		static bool      third = player->is3rdPerson;
+		static ULONGLONG differentSince = 0;
+		if (player->is3rdPerson != third) {
+			const ULONGLONG now = GetTickCount64();
+			if (!differentSince) {
+				differentSince = now;
+			} else if (now - differentSince >= 150) {
+				third = player->is3rdPerson;
+				differentSince = 0;
+			}
+		} else {
+			differentSince = 0;
+		}
 		if (third ? !s.thirdPerson : !s.firstPerson) {
 			clearOurs();
 			st.reason = third ? Reason::kOffThird : Reason::kOffFirst;
