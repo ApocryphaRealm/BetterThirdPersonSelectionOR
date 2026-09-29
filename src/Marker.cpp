@@ -8,6 +8,10 @@ namespace marker
 	namespace
 	{
 		constexpr const wchar_t* kTextClass = L"/Game/UI/Modern/Prefabs/WBP_AltarTextBlock.WBP_AltarTextBlock_C";   // the game's text prefab (Tween Menu's labels)
+		// Oblivion Remastered's full names are localisation KEYS ("LOC_FN_Arrow1Iron") into this string table (the packaged
+		// asset Content/Localization/StringTables/ST_FullNames); the game's UI shows the table's text, and so does the marker
+		constexpr const wchar_t* kFullNames = L"/Game/Localization/StringTables/ST_FullNames.ST_FullNames";
+		constexpr double         kScale = 0.8;   // the prefab's size is a little large over the world (the owner, 2026-09-29)
 
 		ue::Handle   g_root, g_label, g_slot;   // kept across frames: checked by their object-array slots
 		bool         g_shown = false;
@@ -119,6 +123,20 @@ namespace marker
 			ue::Call vp(root, L"AddToViewport");
 			vp.Set<std::int32_t>("ZOrder", 40);
 			vp.Run();
+			// white with a soft dark shadow (the prefab's own colour is black), a little smaller than the prefab
+			struct SlateColor
+			{
+				float        rgba[4];
+				std::uint8_t rule;   // ESlateColorStylingMode: 0 = the colour given
+				std::uint8_t pad[7];
+			} white{ { 1.0f, 1.0f, 1.0f, 1.0f }, 0, {} };
+			CallFirst(label, L"SetColorAndOpacity", &white, sizeof(white));
+			const float shadow[4] = { 0.0f, 0.0f, 0.0f, 0.85f };
+			CallFirst(label, L"SetShadowColorAndOpacity", shadow, sizeof(shadow));
+			const double offset[2] = { 1.5, 1.5 };
+			CallFirst(label, L"SetShadowOffset", offset, sizeof(offset));
+			const double scale[2] = { kScale, kScale };
+			CallFirst(label, L"SetRenderScale", scale, sizeof(scale));
 			g_root.Set(root);
 			g_label.Set(label);
 			g_slot.Set(slot);
@@ -143,7 +161,33 @@ namespace marker
 				return;
 			}
 			std::vector<std::uint8_t> params(static_cast<std::size_t>(reinterpret_cast<UE::UStruct*>(fn)->propertiesSize) + 16, 0);
-			auto* text = new (params.data() + off) UE::FText(UE::FText::AsCultureInvariant(UE::FString(a_text.c_str())));
+			UE::FText* text = nullptr;
+			if (a_text.starts_with(L"LOC_")) {
+				// the table's text for the key (KismetTextLibrary::TextFromStringTable - what the game's own UI shows)
+				static auto* lib = ue::Class(L"/Script/Engine.KismetTextLibrary");
+				ue::Call     t(lib ? lib->GetDefaultObject(false) : nullptr, L"TextFromStringTable");
+				void*        id = t.At("TableId");
+				void*        key = t.At("Key");
+				void*        ret = t.At("ReturnValue");
+				if (id && key && ret) {
+					new (id) UE::FName(kFullNames, UE::EFindName::Add);
+					auto* k = new (key) UE::FString(a_text.c_str());
+					t.Run();
+					auto* got = static_cast<UE::FText*>(ret);
+					text = new (params.data() + off) UE::FText(*got);   // shares the text's data; both are released below
+					got->~FText();
+					k->~FString();
+				} else {
+					static bool warned = false;
+					if (!warned) {
+						warned = true;
+						logger::warn("marker: TextFromStringTable is missing - names show as their keys");
+					}
+				}
+			}
+			if (!text) {
+				text = new (params.data() + off) UE::FText(UE::FText::AsCultureInvariant(UE::FString(a_text.c_str())));
+			}
 			label->ProcessEvent(fn, params.data());
 			text->~FText();
 			g_text = a_text;

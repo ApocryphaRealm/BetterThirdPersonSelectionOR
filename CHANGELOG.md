@@ -21,6 +21,18 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Fixed (after round 5 - the owner saw the marker)
+- the marker showed the name's localisation KEY ("a really long name"): Oblivion Remastered's full names are keys into
+  the string table ST_FullNames (Content/Localization/StringTables); a LOC_ key now goes through
+  KismetTextLibrary::TextFromStringTable, as the game's own UI shows it, in the game's language.
+- the marker's text was black (the prefab's colour): now white with a soft dark shadow; and drawn at 80% of the
+  prefab's size ("a little too big").
+
+### Known (round 5, 11:19-11:21)
+- the game's own activation reads the activateRef write: an Activate press on the chosen Iron Arrow was taken by the
+  game within 94 ms ("left the world - the game handled the press"); on a guard, dialogue opened. The fallback did not
+  have to act. Keys seen: IA_Game_Actions_Activate on E and Gamepad_FaceButton_Bottom.
+
 ### Added (after round 4 - the owner: "BTPS did work just without a marker")
 - the marker: the chosen reference's name, in the game's own HUD text (the text prefab WBP_AltarTextBlock), drawn just
   above the reference where it stands - over a person's head, on top of a container or door, just above an item - so the
