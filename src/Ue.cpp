@@ -126,7 +126,10 @@ namespace ue
 
 	bool Getter::Resolve(UE::UObject* a_obj)
 	{
-		auto* cls = a_obj->GetClass();
+		auto* cls = a_obj ? a_obj->GetClass() : nullptr;
+		if (!cls) {
+			return false;
+		}
 		if (cls == m_class) {
 			return m_fn != nullptr;
 		}

@@ -25,8 +25,6 @@ namespace activate
 		std::string              g_actionName;
 		std::vector<std::string> g_keyNames;
 		std::uint64_t            g_presses = 0;
-		std::uint64_t            g_runs = 0;
-		std::string              g_lastRun;
 
 		std::vector<UE::FName> g_keys;   // game thread only
 
@@ -58,7 +56,7 @@ namespace activate
 				static bool warned = false;
 				if (!warned) {
 					warned = true;
-					logger::warn("activate: the input mapping layout cannot be read - no fallback activation");
+					logger::warn("activate: the input mapping layout cannot be read - presses are not watched");
 				}
 				return;
 			}
@@ -67,7 +65,7 @@ namespace activate
 			std::vector<std::string> names;
 			std::string              chosen;
 			for (auto* imc : imcs) {
-			auto* arr = imc ? ue::At<RawArray>(imc, ue::Offset(imc->GetClass(), "Mappings")) : nullptr;
+			auto* arr = imc && imc->GetClass() ? ue::At<RawArray>(imc, ue::Offset(imc->GetClass(), "Mappings")) : nullptr;
 			for (std::int32_t i = 0; arr && i < arr->num; ++i) {
 				std::uint8_t* e = arr->data + static_cast<std::ptrdiff_t>(i) * size;
 				auto*         act = *reinterpret_cast<UE::UObject**>(e + offAction);
@@ -97,7 +95,7 @@ namespace activate
 			if (joined != lastLogged) {
 				lastLogged = joined;
 				if (chosen.empty()) {
-					logger::warn("activate: no {} in IMC_Game_Actions or IMC_Game_Default - no fallback activation (the actions with 'Activate' in their name are listed above)",
+					logger::warn("activate: no {} in IMC_Game_Actions or IMC_Game_Default - presses are not watched (the actions with 'Activate' in their name are listed above)",
 						kActionName);
 				} else {
 					logger::info("activate: {} is on {}", chosen, joined.empty() ? "no key" : joined);
@@ -115,6 +113,9 @@ namespace activate
 			static UE::UClass*    cls = nullptr;
 			static UE::UFunction* fn = nullptr;
 			static std::int32_t   offKey = -1, offRet = -1, size = 0;
+			if (!a_pc || !a_pc->GetClass()) {
+				return false;
+			}
 			if (a_pc->GetClass() != cls) {
 				cls = a_pc->GetClass();
 				fn = a_pc->FindFunction(UE::FName(L"IsInputKeyDown", UE::EFindName::Find));
@@ -166,25 +167,9 @@ namespace activate
 		return pressed;
 	}
 
-	void Run(RE::TESObjectREFR* a_ref, RE::PlayerCharacter* a_player)
-	{
-		auto* base = a_ref ? a_ref->data.objectReference : nullptr;
-		if (!base || !a_player) {
-			return;
-		}
-		const char* n = RE::TESFullName::GetFullName(base);
-		const std::string what = std::format("{} [{:08X}]", n && *n ? n : "(no name)", a_ref->GetFormID());
-		// the engine's own activation of a reference by an activator (TESForm vtable 0x33): what the game runs for its pick
-		const bool ok = base->Activate(a_ref, a_player, false, nullptr, 1);
-		logger::info("activate: {} activated by this mod (the game's own pick was empty) - {}", what, ok ? "done" : "the engine refused");
-		std::scoped_lock l(g_lock);
-		++g_runs;
-		g_lastRun = what + (ok ? "" : " (refused)");
-	}
-
 	json State()
 	{
 		std::scoped_lock l(g_lock);
-		return { { "action", g_actionName }, { "keys", g_keyNames }, { "presses", g_presses }, { "fallback_runs", g_runs }, { "last_fallback", g_lastRun } };
+		return { { "action", g_actionName }, { "keys", g_keyNames }, { "presses", g_presses } };
 	}
 }

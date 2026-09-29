@@ -24,7 +24,8 @@ namespace selection
 		RE::TESObjectREFR*     g_written = nullptr;   // what this mod wrote last frame (nullptr: nothing)
 		int                    g_writtenTo = settings::kObserve;
 		std::atomic<std::uint32_t> g_cellsScanned{ 0 };
-		int                    g_writeHeld = -1;   // the last write check: -1 not yet, 0 the game replaced it, 1 it was kept
+		std::uint64_t          g_writesKept = 0, g_writesReplaced = 0;   // the write check, summarised every 5 s
+		ULONGLONG              g_writeSummaryAt = 0;
 
 		// an Activate press on this mod's choice, waiting to see whether the game acted on it (by form ID: the reference
 		// may be freed once taken, so it is looked up again, never dereferenced from here)
@@ -52,6 +53,8 @@ namespace selection
 		}
 
 		constexpr float kCellSize = 4096.0f;
+		constexpr float kBelowFeet = 100.0f;   // game units under the character's feet a reference may be
+		constexpr float kAboveFeet = 250.0f;   // and over them (a top shelf, a tall person's head)
 
 		std::string Name(RE::TESObjectREFR* a_ref)
 		{
@@ -153,6 +156,9 @@ namespace selection
 			const float cosMax = std::cos(a_s.maxAngle * std::numbers::pi_v<float> / 180.0f);
 			g_cellsScanned = static_cast<std::uint32_t>(cells.size());
 			for (auto* cell : cells) {
+				if (!cell) {
+					continue;
+				}
 				for (auto* ref : cell->listReferences) {
 					const auto kind = UsableKind(ref, a_player);
 					if (kind == RE::FormType::None) {
@@ -162,6 +168,11 @@ namespace selection
 					const float dx = at.x - me.x, dy = at.y - me.y, dz = at.z - me.z;
 					const float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
 					if (dist > a_s.range) {
+						continue;
+					}
+					// out of vertical reach: well below the feet (a scene's bench under the ground - the crash of 11:32) or
+					// far above the head
+					if (dz < -kBelowFeet || dz > kAboveFeet) {
 						continue;
 					}
 					// aim at the middle of a person or creature, at an item where it lies
@@ -299,8 +310,10 @@ namespace selection
 				logger::info("activate: [{:08X}] left the world - the game handled the press", g_press.id);
 				g_press = {};
 			} else if (GetTickCount64() - g_press.at >= kPressWaitMs) {
+				// the game did not act: it refused (out of its reach, not usable from here). Left alone - activating it from
+				// here is a change of a reference's state off the TES thread, which the engine traps (crash 11:32:40, a bench)
+				logger::info("activate: the game did not act on [{:08X}] - left alone", g_press.id);
 				g_press = {};
-				activate::Run(r, player);
 			}
 		}
 
@@ -312,9 +325,14 @@ namespace selection
 					held = 0;
 				}
 			}
-			if (held != g_writeHeld) {
-				g_writeHeld = held;
-				logger::info("write check: {} {} by the next frame", settings::ApplyToName(g_writtenTo), held ? "kept" : "replaced by the game");
+			(held ? g_writesKept : g_writesReplaced) += 1;
+			if (const ULONGLONG now = GetTickCount64(); now - g_writeSummaryAt >= 5000) {
+				if (g_writeSummaryAt) {
+					logger::info("write check, last 5 s: {} kept {} times, replaced by the game {} times by the next frame",
+						settings::ApplyToName(g_writtenTo), g_writesKept, g_writesReplaced);
+				}
+				g_writeSummaryAt = now;
+				g_writesKept = g_writesReplaced = 0;
 			}
 		}
 
@@ -417,17 +435,9 @@ namespace selection
 			} else if (s.applyTo == settings::kObserve) {
 				logger::info("activate: pressed - observing only (iApplyTo=0), {} is not activated", Name(choice));
 			} else {
-				const auto kind = choice->data.objectReference ? choice->data.objectReference->GetFormType() : RE::FormType::None;
-				const bool noTrace = kind == RE::FormType::Door || kind == RE::FormType::Activator;   // nothing to see when they work
-				if (noTrace && g_writeHeld == 1) {
-					logger::info("activate: pressed - {} is left to the game (the write to {} was kept; a door or activator shows no outcome to wait for)",
-						Name(choice), settings::ApplyToName(g_writtenTo));
-				} else if (noTrace) {
-					activate::Run(choice, player);
-				} else {
-					g_press = { choice->GetFormID(), GetTickCount64() };
-					logger::info("activate: pressed on {} - waiting {} ms for the game to act on it", Name(choice), kPressWaitMs);
-				}
+				// watched only: the game's own activation acts on the activateRef write; the log says whether it did
+				g_press = { choice->GetFormID(), GetTickCount64() };
+				logger::info("activate: pressed on {} - watching for the game to act on it", Name(choice));
 			}
 		}
 

@@ -99,6 +99,9 @@ namespace camera
 				return nullptr;
 			}
 			auto* cls = a_owner->GetClass();
+			if (!cls) {
+				return nullptr;
+			}
 			if (cls != a_class) {
 				a_class = cls;
 				a_offset = ue::Offset(cls, a_property);

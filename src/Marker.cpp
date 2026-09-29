@@ -85,10 +85,11 @@ namespace marker
 			static auto* lib = ue::Class(L"/Script/UMG.WidgetBlueprintLibrary");
 			auto* cls = ue::Class(a_classPath);
 			auto* pc = camera::PlayerController();
-			if (!lib || !cls || !pc) {
+			auto* cdo = lib ? lib->GetDefaultObject(false) : nullptr;
+			if (!cdo || !cls || !pc) {
 				return nullptr;
 			}
-			ue::Call c(lib->GetDefaultObject(false), L"Create");
+			ue::Call c(cdo, L"Create");
 			c.Set("WorldContextObject", pc);
 			c.Set("WidgetType", cls);
 			c.Set("OwningPlayer", pc);
@@ -121,7 +122,7 @@ namespace marker
 				Status("cannot be built yet (no player controller, or the game's text prefab is missing)");
 				return false;
 			}
-			auto** tree = ue::At<UE::UObject*>(root, ue::Offset(root->GetClass(), "WidgetTree"));
+			auto** tree = root->GetClass() ? ue::At<UE::UObject*>(root, ue::Offset(root->GetClass(), "WidgetTree")) : nullptr;
 			if (tree && !*tree) {
 				*tree = UE::NewObject<UE::UObject>(root, treeClass, UE::FName(L"BTPSMarkerTree"));
 			}
@@ -243,10 +244,11 @@ namespace marker
 			}
 			static auto* lib = ue::Class(L"/Script/UMG.WidgetLayoutLibrary");
 			auto* pc = camera::PlayerController();
-			if (!lib || !pc) {
+			auto* cdo = lib ? lib->GetDefaultObject(false) : nullptr;
+			if (!cdo || !pc) {
 				return false;
 			}
-			ue::Call c(lib->GetDefaultObject(false), L"ProjectWorldLocationToWidgetPosition");
+			ue::Call c(cdo, L"ProjectWorldLocationToWidgetPosition");
 			if (!c) {
 				Status("UMG has no ProjectWorldLocationToWidgetPosition - the marker cannot be placed");
 				return false;

@@ -21,6 +21,19 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Fixed (after round 6 - the owner: "i selected a bench under the ground and it crashed", 11:32:40)
+- the crash: the fallback called the engine's TESForm::Activate on a bench (292 units away, under the ground - the game
+  itself had refused it) from the frame tick, which runs on the UE game thread; Oblivion Remastered traps any change of a
+  reference's state off the TES simulation thread (a null write after a thread-id compare - the primary agent's reading
+  of the crash record; logic library "equipment path traps every thread but the TES thread"). The fallback is REMOVED:
+  the game's own activation already acts on the activateRef write (round 5), so a press is only watched and logged
+  ("the game did not act - left alone" when it refuses).
+- a vertical reach: a reference more than 100 units under the character's feet or 250 above them is not chosen.
+- the write check is one summary line every 5 s (it flipped every frame and filled the log).
+- null guards audited (rule 14 - the owner: "its standard practice to build with null guards at every relavent
+  point"): every class, class default object and cell this mod dereferences is checked first.
+- the marker's text is white (round 6 confirmed): the colour now goes on after the prefab's own style is applied.
+
 ### Fixed (after round 5 - the owner saw the marker)
 - the marker showed the name's localisation KEY ("a really long name"): Oblivion Remastered's full names are keys into
   the string table ST_FullNames (Content/Localization/StringTables); a LOC_ key now goes through
