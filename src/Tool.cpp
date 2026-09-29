@@ -4,6 +4,7 @@
 // op reset - the defaults. Every accessor used here is thread-safe, so the handler answers on TestBench's own thread.
 #include "Activate.h"
 #include "Camera.h"
+#include "Marker.h"
 #include "Selection.h"
 #include "Settings.h"
 #include "TestBenchAPI.h"
@@ -21,17 +22,21 @@ namespace tool
 			const auto v = settings::Snapshot();
 			return { { "enabled", v.enabled }, { "thirdPerson", v.thirdPerson }, { "firstPerson", v.firstPerson }, { "range", v.range },
 				{ "maxAngle", v.maxAngle }, { "applyTo", v.applyTo }, { "applyToName", settings::ApplyToName(v.applyTo) },
-				{ "logTargets", v.logTargets } };
+				{ "logTargets", v.logTargets }, { "showMarker", v.showMarker } };
 		}
 
 		// false when a_key is not a setting or a_value has the wrong type
 		bool Set(const std::string& a_key, const json& a_value)
 		{
 			const bool isBool = a_value.is_boolean(), isNum = a_value.is_number();
-			if ((a_key == "enabled" || a_key == "thirdPerson" || a_key == "firstPerson" || a_key == "logTargets") && isBool) {
+			if ((a_key == "enabled" || a_key == "thirdPerson" || a_key == "firstPerson" || a_key == "logTargets" || a_key == "showMarker") && isBool) {
 				const bool b = a_value.get<bool>();
 				settings::Update([&](settings::Values& s) {
-					(a_key == "enabled" ? s.enabled : a_key == "thirdPerson" ? s.thirdPerson : a_key == "firstPerson" ? s.firstPerson : s.logTargets) = b;
+					(a_key == "enabled"       ? s.enabled :
+						a_key == "thirdPerson" ? s.thirdPerson :
+						a_key == "firstPerson" ? s.firstPerson :
+						a_key == "showMarker"  ? s.showMarker :
+												 s.logTargets) = b;
 				});
 			} else if ((a_key == "range" || a_key == "maxAngle") && isNum) {
 				const float f = a_value.get<float>();
@@ -70,7 +75,7 @@ namespace tool
 				return;
 			}
 			Write(a_sink, a_write, { { "ok", true }, { "version", SEL_VERSION }, { "settings", SettingsJson() }, { "selection", selection::State() },
-				{ "camera", camera::State() }, { "activate", activate::State() } });
+				{ "camera", camera::State() }, { "activate", activate::State() }, { "marker", marker::State() } });
 		}
 	}
 

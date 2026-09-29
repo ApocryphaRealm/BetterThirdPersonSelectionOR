@@ -47,6 +47,60 @@ namespace ue
 		return a_base && a_offset >= 0 ? reinterpret_cast<T*>(static_cast<std::uint8_t*>(a_base) + a_offset) : nullptr;
 	}
 
+	// A reflected call: parameters by name, laid out from the UFunction's own properties (Tween Menu's ue::Call).
+	class Call
+	{
+	public:
+		Call(UE::UObject* a_obj, const wchar_t* a_fn) :
+			m_obj(a_obj),
+			m_fn(a_obj ? a_obj->FindFunction(UE::FName(a_fn, UE::EFindName::Find)) : nullptr)
+		{
+			if (m_fn) {
+				m_params.assign(static_cast<std::size_t>(reinterpret_cast<UE::UStruct*>(m_fn)->propertiesSize) + 16, 0);
+			}
+		}
+		explicit operator bool() const { return m_fn != nullptr; }
+		void* At(std::string_view a_name)
+		{
+			if (!m_fn) {
+				return nullptr;
+			}
+			const auto off = Offset(reinterpret_cast<UE::UStruct*>(m_fn), a_name);
+			return off >= 0 ? m_params.data() + off : nullptr;
+		}
+		template <class T>
+		bool Set(std::string_view a_name, const T& a_value)
+		{
+			if (void* p = At(a_name)) {
+				std::memcpy(p, &a_value, sizeof(T));
+				return true;
+			}
+			return false;
+		}
+		template <class T>
+		T Get(std::string_view a_name)
+		{
+			T v{};
+			if (void* p = At(a_name)) {
+				std::memcpy(&v, p, sizeof(T));
+			}
+			return v;
+		}
+		bool Run()
+		{
+			if (!m_fn || !m_obj) {
+				return false;
+			}
+			m_obj->ProcessEvent(m_fn, m_params.data());
+			return true;
+		}
+
+	private:
+		UE::UObject*              m_obj;
+		UE::UFunction*            m_fn;
+		std::vector<std::uint8_t> m_params;
+	};
+
 	// A reflected call with no parameters in and one ReturnValue out, laid out from the UFunction's own properties.
 	// The UFunction and its ReturnValue offset are looked up once per (class, name) by the caller's static.
 	class Getter

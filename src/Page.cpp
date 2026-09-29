@@ -75,6 +75,11 @@ namespace page
 				logger::info("page: first person {}", v.firstPerson ? "on" : "off");
 			}
 
+			if (Switch(TR("SEL_Marker", "Show what will be used, where it is"), &v.showMarker)) {
+				settings::Update([&](settings::Values& s) { s.showMarker = v.showMarker; });
+				logger::info("page: marker {}", v.showMarker ? "on" : "off");
+			}
+
 			ImGui::SeparatorText(TR("SEL_GroupArea", "Area"));
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.6f);
 			if (ImGui::SliderFloat(TR("SEL_Range", "Reach"), &v.range, settings::kRangeMin, settings::kRangeMax, "%.0f")) {

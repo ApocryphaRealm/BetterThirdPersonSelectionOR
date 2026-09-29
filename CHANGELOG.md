@@ -21,6 +21,16 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Added (after round 4 - the owner: "BTPS did work just without a marker")
+- the marker: the chosen reference's name, in the game's own HUD text (the text prefab WBP_AltarTextBlock), drawn just
+  above the reference where it stands - over a person's head, on top of a container or door, just above an item - so the
+  reach and the angle can be seen (the owner: "build the activation prompt for wherever the item is at so that I know
+  that it's capable of reaching that distance"). Shown only when this mod's choice is what Activate will use; the game's
+  own pick keeps the game's own prompt. Built once like Tween Menu's menu (a canvas on the viewport, then only shown and
+  hidden), placed by UMG's own projection (WidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition) of the reference's
+  place in Unreal's world (camera::ToUnreal, from the calibration). [General] bShowMarker=1 and a switch on the page
+  ("Show what will be used, where it is", eleven languages); selection.state reports it.
+
 ### Fixed (after round 3 - the owner: "btps still does nothing")
 - the fallback never saw an Activate press: it looked for IA_Game_Default_Activate in IMC_Game_Default, which does not
   exist. The game's packaged asset list has the action as Content/Dev/Input/GamePlay/InputActions/Actions/

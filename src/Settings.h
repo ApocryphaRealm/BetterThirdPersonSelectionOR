@@ -28,6 +28,7 @@ namespace settings
 		bool  firstPerson = false;  // [General] bFirstPerson (first person keeps the game's own precise pick)
 		float range = 200.0f;       // [General] fRange - game units from the character
 		float maxAngle = 60.0f;     // [General] fMaxAngle - degrees either side of where the camera looks
+		bool  showMarker = true;    // [General] bShowMarker - the chosen reference's name drawn where it stands
 		int   applyTo = kActivateRef;   // [Test] iApplyTo
 		bool  logTargets = true;    // [Test] bLogTargets - one log line whenever the game's or this mod's target changes
 		int   logLevel = 2;         // [Log] uLogLevel (rule 14: shipped at info)

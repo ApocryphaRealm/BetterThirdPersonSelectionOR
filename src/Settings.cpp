@@ -47,6 +47,7 @@ namespace settings
 				{ "General.bFirstPerson", a_v.firstPerson ? "1" : "0" },
 				{ "General.fRange", f(a_v.range) },
 				{ "General.fMaxAngle", f(a_v.maxAngle) },
+				{ "General.bShowMarker", a_v.showMarker ? "1" : "0" },
 				{ "Test.iApplyTo", std::to_string(a_v.applyTo) },
 				{ "Test.bLogTargets", a_v.logTargets ? "1" : "0" },
 				{ "Log.uLogLevel", std::to_string(a_v.logLevel) },
@@ -135,6 +136,7 @@ namespace settings
 		if (const auto* s = get("General.bFirstPerson")) v.firstPerson = flag(*s);
 		if (const auto* s = get("General.fRange")) v.range = static_cast<float>(std::atof(s->c_str()));
 		if (const auto* s = get("General.fMaxAngle")) v.maxAngle = static_cast<float>(std::atof(s->c_str()));
+		if (const auto* s = get("General.bShowMarker")) v.showMarker = flag(*s);
 		if (const auto* s = get("Test.iApplyTo")) v.applyTo = std::atoi(s->c_str());
 		if (const auto* s = get("Test.bLogTargets")) v.logTargets = flag(*s);
 		if (const auto* s = get("Log.uLogLevel")) v.logLevel = std::atoi(s->c_str());

@@ -254,6 +254,19 @@ namespace camera
 
 	UE::UObject* PlayerController() { return FindPlayerController(); }
 
+	bool ToUnreal(const RE::NiPoint3& a_oblivion, UE::FVector& a_out)
+	{
+		std::scoped_lock l(g_lock);
+		const auto& r = g_last;
+		if (!g_cal.done || g_cal.scale <= 0.0 || !r.haveCamera) {
+			return false;
+		}
+		// the player's feet on both sides, and the offset to the point mapped and scaled across
+		const Vec rel = g_cal.mapping.ToUe({ a_oblivion.x - r.playerLoc.x, a_oblivion.y - r.playerLoc.y, a_oblivion.z - r.playerLoc.z });
+		a_out = UE::FVector(r.pawnLoc.x + rel.x * g_cal.scale, r.pawnLoc.y + rel.y * g_cal.scale, r.pawnLoc.z - r.halfHeight + rel.z * g_cal.scale);
+		return true;
+	}
+
 	json State()
 	{
 		std::scoped_lock l(g_lock);

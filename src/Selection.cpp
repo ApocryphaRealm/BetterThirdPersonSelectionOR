@@ -2,6 +2,7 @@
 
 #include "Activate.h"
 #include "Camera.h"
+#include "Marker.h"
 #include "Settings.h"
 
 namespace selection
@@ -251,6 +252,9 @@ namespace selection
 
 		void Publish(Status a_status, const std::vector<Candidate>& a_top)
 		{
+			if (!a_status.active) {
+				marker::Show(nullptr);   // off, in a menu, the other view, not calibrated: nothing to mark
+			}
 			// where the frame stopped, once per change - an info-level log then shows which stage a round reached
 			static int lastReason = -1;
 			if (static_cast<int>(a_status.reason) != lastReason) {
@@ -442,6 +446,8 @@ namespace selection
 		} else {
 			clearOurs();
 		}
+		// the marker: what Activate will use when it is this mod's choice (the game's own pick shows the game's prompt)
+		marker::Show(s.showMarker && s.applyTo != settings::kObserve && choice && !game ? choice : nullptr);
 		Publish(st, candidates);
 	}
 
