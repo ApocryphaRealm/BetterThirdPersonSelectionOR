@@ -34,8 +34,10 @@ namespace settings
 		int   logLevel = 2;         // [Log] uLogLevel (rule 14: shipped at info)
 	};
 
-	inline constexpr float kRangeMin = 50.0f, kRangeMax = 600.0f;
-	inline constexpr float kAngleMin = 5.0f, kAngleMax = 90.0f;
+	// the page's bounds: past about 400 units and 75 degrees the pick reaches what the player could never use (the owner
+	// sat on a bench under the map at 600 / 89, 2026-09-29: "we just set default values to be reasonable")
+	inline constexpr float kRangeMin = 50.0f, kRangeMax = 400.0f;
+	inline constexpr float kAngleMin = 5.0f, kAngleMax = 75.0f;
 
 	Values Snapshot();
 	void   Update(const std::function<void(Values&)>& a_change);   // clamps, then saves

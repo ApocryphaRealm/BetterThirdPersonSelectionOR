@@ -21,6 +21,11 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Changed (after round 7 - no crash, but a bench under the map could still be sat on at Reach 600 / Angle 89)
+- the owner: "we just set default values to be reasonable". The defaults stay Skyrim BTPS's own (Reach 200 units, about
+  three metres; Angle 60 degrees); the page's ceilings come down from 600 / 90 to 400 / 75 (the INI is clamped the
+  same), and the owner's installed INI was put back to the defaults.
+
 ### Fixed (after round 6 - the owner: "i selected a bench under the ground and it crashed", 11:32:40)
 - the crash: the fallback called the engine's TESForm::Activate on a bench (292 units away, under the ground - the game
   itself had refused it) from the frame tick, which runs on the UE game thread; Oblivion Remastered traps any change of a
