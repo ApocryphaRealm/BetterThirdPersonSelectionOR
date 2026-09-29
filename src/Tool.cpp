@@ -2,6 +2,7 @@
 // few candidates, the game's pick fields, the camera and its calibration; op set {key, value} - change one setting as
 // the page would (saved at once): enabled, thirdPerson, firstPerson, range, maxAngle, applyTo (0-5), logTargets;
 // op reset - the defaults. Every accessor used here is thread-safe, so the handler answers on TestBench's own thread.
+#include "Activate.h"
 #include "Camera.h"
 #include "Selection.h"
 #include "Settings.h"
@@ -69,7 +70,7 @@ namespace tool
 				return;
 			}
 			Write(a_sink, a_write, { { "ok", true }, { "version", SEL_VERSION }, { "settings", SettingsJson() }, { "selection", selection::State() },
-				{ "camera", camera::State() } });
+				{ "camera", camera::State() }, { "activate", activate::State() } });
 		}
 	}
 

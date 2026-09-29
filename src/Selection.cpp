@@ -1,5 +1,6 @@
 #include "Selection.h"
 
+#include "Activate.h"
 #include "Camera.h"
 #include "Settings.h"
 
@@ -22,6 +23,7 @@ namespace selection
 		RE::TESObjectREFR*     g_written = nullptr;   // what this mod wrote last frame (nullptr: nothing)
 		int                    g_writtenTo = settings::kObserve;
 		std::atomic<std::uint32_t> g_cellsScanned{ 0 };
+		int                    g_writeHeld = -1;   // the last write check: -1 not yet, 0 the game replaced it, 1 it was kept
 
 		constexpr float kCellSize = 4096.0f;
 
@@ -260,15 +262,14 @@ namespace selection
 
 		// last frame's write: did the game keep it? (logged once per change of the answer)
 		if (g_written) {
-			static int lastHeld = -1;
-			int        held = 1;
+			int held = 1;
 			for (const int f : FieldsOf(g_writtenTo)) {
 				if (auto** p = Field(im, f); p && *p != g_written) {
 					held = 0;
 				}
 			}
-			if (held != lastHeld) {
-				lastHeld = held;
+			if (held != g_writeHeld) {
+				g_writeHeld = held;
 				logger::info("write check: {} {} by the next frame", settings::ApplyToName(g_writtenTo), held ? "kept" : "replaced by the game");
 			}
 		}
@@ -359,6 +360,22 @@ namespace selection
 				} else {
 					logger::info("selection: nothing within {:.0f} units and {:.0f} degrees", s.range, s.maxAngle);
 				}
+			}
+		}
+
+		// the Activate press: the game's own pick, or the write the game kept, is the game's to act on; otherwise - the game
+		// replaced the write, so its activation will not see the choice - this mod activates the choice itself
+		if (activate::PressedThisTick(camera::PlayerController())) {
+			if (game) {
+				logger::info("activate: pressed - the game's own pick {} is used", Name(game));
+			} else if (!choice) {
+				logger::info("activate: pressed - nothing chosen");
+			} else if (s.applyTo == settings::kObserve) {
+				logger::info("activate: pressed - observing only (iApplyTo=0), {} is not activated", Name(choice));
+			} else if (g_writeHeld == 1) {
+				logger::info("activate: pressed - {} is left to the game (the write to {} was kept)", Name(choice), settings::ApplyToName(g_writtenTo));
+			} else {
+				activate::Run(choice, player);
 			}
 		}
 

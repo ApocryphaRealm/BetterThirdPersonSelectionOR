@@ -21,6 +21,18 @@ only once a build is seen working in game (rule 48); until then the work sits un
   sliders, a reset, a live status line; eleven languages.
 - TestBench tool selection.state (state, set, reset).
 
+### Added (before round 3)
+- the owner, 2026-09-29: "figure out what went wrong with BTPS because it didn't do anything". Round 2 ran the
+  observe-only build (its log: "apply to observe", no write lines) - it never handed anything to the game. The risk left
+  for the activateRef build: the write happens at the START of the frame (the message pump) and the game recomputes
+  activateRef during the frame, so its prompt and its activation may never see the choice. So the Activate press has a
+  fallback that does not depend on that timing: the keys of IA_Game_Default_Activate in IMC_Game_Default are watched
+  (IsInputKeyDown edges, rebinds followed; every mapped action with "Activate" in its name is logged once, since the
+  action name is not verified yet), and on a press with the game's own pick empty and the write check saying the game
+  REPLACED the write, the choice is activated through the engine's own TESForm::Activate (the pick's own call). While
+  the write is kept, the press is left to the game - one press never activates twice. selection.state reports the
+  action, its keys, the presses and the fallbacks run.
+
 ### Changed (after round 2, 09:47-09:50)
 - the choice is now written into InterfaceManager::activateRef by default ([Test] iApplyTo=4): round 2 showed the game's
   own prompt target there alone - it held the Iron Arrow whenever the prompt showed, while pickRef, reticleRef,

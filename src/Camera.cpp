@@ -70,7 +70,7 @@ namespace camera
 		Vec  Sub(const Vec& a, const Vec& b) { return { a.x - b.x, a.y - b.y, a.z - b.z }; }
 		double LenXY(const Vec& a) { return std::sqrt(a.x * a.x + a.y * a.y); }
 
-		UE::UObject* PlayerController()
+		UE::UObject* FindPlayerController()
 		{
 			static ue::Handle cached;   // kept across frames: checked by its slot, never by reading it
 			static ULONGLONG  lastScan = 0;
@@ -193,7 +193,7 @@ namespace camera
 		if (!ue::SelfCheck()) {
 			return fail("Unreal's property layout is not proven yet");
 		}
-		auto* pc = PlayerController();
+		auto* pc = FindPlayerController();
 		if (!pc) {
 			return fail("no player controller yet");
 		}
@@ -251,6 +251,8 @@ namespace camera
 	}
 
 	bool Calibrated() { return g_calibrated.load(); }
+
+	UE::UObject* PlayerController() { return FindPlayerController(); }
 
 	json State()
 	{

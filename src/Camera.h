@@ -23,5 +23,6 @@ namespace camera
 	View Read(RE::PlayerCharacter* a_player);   // once per frame, on the game thread
 
 	json State();   // the last reading and the calibration, for the TestBench tool (any thread)
+	UE::UObject* PlayerController();   // game thread; nullptr until found (looked for at most every 2 s)
 	bool Calibrated();
 }
