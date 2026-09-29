@@ -26,11 +26,11 @@ namespace settings
 		bool  enabled = true;       // [General] bEnabled
 		bool  thirdPerson = true;   // [General] bThirdPerson
 		bool  firstPerson = false;  // [General] bFirstPerson (first person keeps the game's own precise pick)
-		float range = 200.0f;       // [General] fRange - game units from the character
-		float maxAngle = 60.0f;     // [General] fMaxAngle - degrees either side of where the camera looks
+		float range = 300.0f;       // [General] fRange - game units from the character (the owner's default, 2026-09-29)
+		float maxAngle = 35.0f;     // [General] fMaxAngle - degrees either side of where the camera looks (the owner's default)
 		bool  showMarker = true;    // [General] bShowMarker - the chosen reference's name drawn where it stands
 		int   applyTo = kActivateRef;   // [Test] iApplyTo
-		bool  logTargets = true;    // [Test] bLogTargets - one log line whenever the game's or this mod's target changes
+		bool  logTargets = false;   // [Test] bLogTargets - one log line whenever the game's or this mod's target changes (a test aid)
 		int   logLevel = 2;         // [Log] uLogLevel (rule 14: shipped at info)
 	};
 

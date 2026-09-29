@@ -328,7 +328,7 @@ namespace selection
 			(held ? g_writesKept : g_writesReplaced) += 1;
 			if (const ULONGLONG now = GetTickCount64(); now - g_writeSummaryAt >= 5000) {
 				if (g_writeSummaryAt) {
-					logger::info("write check, last 5 s: {} kept {} times, replaced by the game {} times by the next frame",
+					logger::debug("write check, last 5 s: {} kept {} times, replaced by the game {} times by the next frame",
 						settings::ApplyToName(g_writtenTo), g_writesKept, g_writesReplaced);
 				}
 				g_writeSummaryAt = now;

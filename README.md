@@ -14,8 +14,8 @@ the game's own prompt target lives in (read in game 2026-09-29), whenever the ga
 * Every frame, in third person (first person keeps the game's precise pick unless switched on), it looks at the
   references in the cells around the character: items, containers, doors, activators, flora, furniture, people and
   creatures - each with a name, as the game prompts only for what has one.
-* It keeps those within **Reach** (default 200 game units, about three metres) of the character and within **Angle**
-  (default 60 degrees either side) of the camera's aim, and chooses the one closest to the aim, then the nearest.
+* It keeps those within **Reach** (default 300 game units, about four metres) of the character and within **Angle**
+  (default 35 degrees either side) of the camera's aim, and chooses the one closest to the aim, then the nearest.
 * What the crosshair itself points at always wins; this only fills in when the game picked nothing.
 * The camera is Unreal's, read from the player camera manager. Unreal's world and Oblivion's differ by a scale and
   maybe by swapped or mirrored axes, so neither is assumed: the first few steps the character walks calibrate them (the
