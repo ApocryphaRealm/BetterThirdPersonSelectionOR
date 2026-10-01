@@ -64,6 +64,9 @@ namespace ue
 			return false;   // not loaded yet: asked again later (rule 17)
 		}
 		const auto keyIndex = Offset(vm, "KeyIndex");
+		if (keyIndex < 0) {
+			return false;   // the class exists before its property chain is linked (the first frames of a launch): ask again, never latch
+		}
 		g_state.store(keyIndex == 0xD0 ? 1 : -1);
 		if (g_state.load() > 0) {
 			logger::info("ue: property offsets proven (VQuickKeysMenuViewModel KeyIndex at 0x{:X})", keyIndex);
